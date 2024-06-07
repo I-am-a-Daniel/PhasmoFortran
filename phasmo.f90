@@ -10,6 +10,7 @@ program phasmo
 	character(16)	:: command
 	character(16)	:: param
 	integer			:: split_pos
+	integer			:: paramint
 	logical			:: valid_command		!Lefuthat v errorozzon
 
 
@@ -204,6 +205,31 @@ program phasmo
 				else
 					print *, 'Error: Invalid evidence.'
 				end if
+			else if (command == 'remove' .or. command == 'rem') then
+				if (param == 'emf') then
+					call RemoveEMF()
+					print *, 'Evidence removed.'
+				else if (param == 'uv') then
+					call RemoveUV()
+					print *, 'Evidence removed.'
+				else if (param == 'writing') then
+					call RemoveWriting()
+					print *, 'Evidence removed.'
+				else if (param == 'freezing') then
+					call RemoveFreezing()
+					print *, 'Evidence removed.'
+				else if (param == 'dots') then
+					call RemoveDots()
+					print *, 'Evidence removed.'
+				else if (param == 'orb') then
+					call RemoveOrb()
+					print *, 'Evidence removed.'
+				else if (param == 'box' .or. param == 'spiritbox') then
+					call RemoveBox()
+					print *, 'Evidence removed.'
+				else
+					print *, 'Error: Invalid evidence.'
+				end if
 			else if(command == 'list') then
 				if (param == 'ghost' .or. param == 'ghosts') then
 					call ListGhosts()
@@ -235,6 +261,31 @@ program phasmo
 				else
 					print *, 'Error: Invalid evidence.'
 				end if
+			else if (command == 'unbar') then
+				if (param == 'emf') then
+					call UnbarEMF()
+					print *, 'Evidence Unbarred.'
+				else if (param == 'uv') then
+					call UnbarUV()
+					print *, 'Evidence Unbarred.'
+				else if (param == 'writing') then
+					call UnbarWriting()
+					print *, 'Evidence Unbarred.'
+				else if (param == 'freezing') then
+					call UnbarFreezing()
+					print *, 'Evidence Unbarred.'
+				else if (param == 'dots') then
+					call UnbarDots()
+					print *, 'Evidence Unbarred.'
+				else if (param == 'orb') then
+					call UnbarOrb()
+					print *, 'Evidence Unbarred.'
+				else if (param == 'box' .or. param == 'spiritbox') then
+					call UnbarBox()
+					print *, 'Evidence Unbarred.'
+				else
+					print *, 'Error: Invalid evidence.'
+				end if
 			!--------------------------------------------------Innentől command + param helyett input
 			else if (input == 'shutdown' .or. input == 'exit') then
 				running = .false.
@@ -246,12 +297,6 @@ program phasmo
 			end if
 		end if
 	end do
-
-
-
-
-
-
 !--------------------------------------------------------------
 contains
 	subroutine EmptyListForInit()			!Kell ez?
@@ -526,6 +571,63 @@ contains
 			end if
 		end do
 	end subroutine BarBox
+!---------------------------------------------[Remove-ok innentől]
+!-----------------------------------------------------------------
+	subroutine RemoveEMF()
+		HasEMF = .false.
+	end subroutine RemoveEMF
+
+	subroutine UnbarEMF()
+		NoEMF = .false.
+	end subroutine UnbarEMF
+
+	subroutine RemoveUV()
+		HasUV = .false.
+	end subroutine RemoveUV
+
+	subroutine UnbarUV()
+		NoUV = .false.
+	end subroutine UnbarUV
+
+	subroutine RemoveWriting()
+		HasWriting = .false.
+	end subroutine RemoveWriting
+
+	subroutine UnbarWriting()
+		NoWriting = .false.
+	end subroutine UnbarWriting
+
+	subroutine RemoveFreezing()
+		HasFreezing = .false.
+	end subroutine RemoveFreezing
+
+	subroutine UnbarFreezing()
+		NoFreezing = .false.
+	end subroutine UnbarFreezing
+
+	subroutine RemoveDots()
+		HasDots = .false.
+	end subroutine RemoveDots
+
+	subroutine UnbarDots()
+		NoDots = .false.
+	end subroutine UnbarDots
+
+	subroutine RemoveOrb()
+		HasOrb = .false.
+	end subroutine RemoveOrb
+
+	subroutine UnbarOrb()
+		NoOrb = .false.
+	end subroutine UnbarOrb
+
+	subroutine RemoveBox()
+		HasBox = .false.
+	end subroutine RemoveBox
+
+	subroutine UnbarBox()
+		NoBox = .false.
+	end subroutine UnbarBox
 
 	subroutine ReinitPossibleGhostListOnChange()
 		integer :: Reiniti
@@ -593,8 +695,6 @@ contains
 		NoBox = .false.
 		call ReinitPossibleGhostListOnChange()
 	end subroutine Restart
-
-
 end program phasmo
 
 
