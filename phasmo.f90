@@ -179,7 +179,7 @@ program phasmo
 		end if
 
 		if (valid_command .eqv. .true.) then
-			if (command == 'evidence') then
+			if (command == 'evidence' .or. command == 'add') then
 				if (param == 'emf') then
 					call AddEMF()
 					print *, 'Evidence added.'
@@ -210,11 +210,37 @@ program phasmo
 				else
 					print *, 'Invalid list object'
 				end if
+			else if (command == 'no' .or. command == 'bar') then
+				if (param == 'emf') then
+					call BarEMF()
+					print *, 'Evidence Barred.'
+				else if (param == 'uv') then
+					call BarUV()
+					print *, 'Evidence Barred.'
+				else if (param == 'writing') then
+					call BarWriting()
+					print *, 'Evidence Barred.'
+				else if (param == 'freezing') then
+					call BarFreezing()
+					print *, 'Evidence Barred.'
+				else if (param == 'dots') then
+					call BarDots()
+					print *, 'Evidence Barred.'
+				else if (param == 'orb') then
+					call BarOrb()
+					print *, 'Evidence Barred.'
+				else if (param == 'box' .or. param == 'spiritbox') then
+					call BarBox()
+					print *, 'Evidence Barred.'
+				else
+					print *, 'Error: Invalid evidence.'
+				end if
 			!--------------------------------------------------Innentől command + param helyett input
-			else if (input == 'shutdown') then
+			else if (input == 'shutdown' .or. input == 'exit') then
 				running = .false.
 			else if (input == 'restart') then
 				call Restart()
+				print *, 'Restarted'
 			else
 				print *, 'Unknown command'
 			end if
@@ -235,9 +261,10 @@ contains
 	end subroutine EmptyListForInit
 
 	subroutine ListGhosts()
+		call ReinitPossibleGhostListOnChange()	!	tbh ha ez itt van, akkor kell egyáltalán máshova?
 		print *, 'Possible ghosts:'
 		print *, '----------------'
-		do i = 1, size(possible_ghosts)						!Kivihetjük majd subroutine-ba, ez csak a kiírás
+		do i = 1, size(possible_ghosts)						
 			if (possible_ghosts(i) .ne. '') then
 				print *, possible_ghosts(i)
 			end if
@@ -249,6 +276,7 @@ contains
 		integer :: EMFi, EMFj
 		logical :: EMFvalid
 		HasEMF = .true.
+		NoEMF = .false.
 		do EMFi = 1, size(possible_ghosts)
 			EMFvalid = .false.
 			do EMFj = 1, size(ghosts_EMF)
@@ -266,6 +294,7 @@ contains
 		integer :: UVi, UVj
 		logical :: UVvalid
 		HasUV = .true.
+		NoUV = .false.
 		do UVi = 1, size(possible_ghosts)
 			UVvalid = .false.
 			do UVj = 1, size(ghosts_UV)
@@ -283,6 +312,7 @@ contains
 		integer :: Wi, Wj
 		logical :: Wvalid
 		HasWriting = .true.
+		NoWriting = .false.
 		do Wi = 1, size(possible_ghosts)
 			Wvalid = .false.
 			do Wj = 1, size(ghosts_Writing)
@@ -300,6 +330,7 @@ contains
 		integer :: Freezi, Freezj
 		logical :: Freezvalid
 		HasFreezing = .true.
+		NoFreezing = .false.
 		do Freezi = 1, size(possible_ghosts)
 			Freezvalid = .false.
 			do Freezj = 1, size(ghosts_Freezing)
@@ -317,6 +348,7 @@ contains
 		integer :: Dotsi, Dotsj
 		logical :: Dotsvalid
 		HasDots = .true.
+		NoDots = .false.
 		do Dotsi = 1, size(possible_ghosts)
 			Dotsvalid = .false.
 			do Dotsj = 1, size(ghosts_Dots)
@@ -334,6 +366,7 @@ contains
 		integer :: Orbi, Orbj
 		logical :: Orbvalid
 		HasOrb = .true.
+		NoOrb = .false.
 		do Orbi = 1, size(possible_ghosts)
 			Orbvalid = .false.
 			do Orbj = 1, size(ghosts_Orb)
@@ -351,6 +384,7 @@ contains
 		integer :: Boxi, Boxj
 		logical :: Boxvalid
 		HasBox = .true.
+		NoBox = .false.
 		do Boxi = 1, size(possible_ghosts)
 			Boxvalid = .false.
 			do Boxj = 1, size(ghosts_Box)
@@ -363,6 +397,135 @@ contains
 			end if
 		end do
 	end subroutine AddBox
+
+!----------------------------------------[Bar innnentől]
+!-------------------------------------------------------
+
+	subroutine BarEMF()
+		integer :: EMFi, EMFj
+		logical :: EMFvalid
+		HasEMF = .false.
+		NoEMF = .true.
+		do EMFi = 1, size(possible_ghosts)
+			EMFvalid = .false.
+			do EMFj = 1, size(ghosts_EMF)
+				if (possible_ghosts(EMFi) == ghosts_EMF(EMFj)) then
+					EMFvalid = .true.
+				end if
+			end do
+			if (EMFvalid .eqv. .true.) then
+				possible_ghosts(EMFi) = ''
+			end if
+		end do
+	end subroutine BarEMF
+
+		subroutine BarUV()
+		integer :: UVi, UVj
+		logical :: UVvalid
+		HasUV = .false.
+		NoUV = .true.
+		do UVi = 1, size(possible_ghosts)
+			UVvalid = .false.
+			do UVj = 1, size(ghosts_UV)
+				if(possible_ghosts(UVi) == ghosts_UV(UVj)) then
+					UVvalid = .true.
+				end if
+			end do
+			if (UVvalid .eqv. .true.) then
+				possible_ghosts(UVi) = ''
+			end if
+		end do
+	end subroutine BarUV
+
+	subroutine BarWriting()
+		integer :: Wi, Wj
+		logical :: Wvalid
+		HasWriting = .false.
+		NoWriting = .true.
+		do Wi = 1, size(possible_ghosts)
+			Wvalid = .false.
+			do Wj = 1, size(ghosts_Writing)
+				if(possible_ghosts(Wi) == ghosts_Writing(Wj)) then
+					Wvalid = .true.
+				end if
+			end do
+			if (Wvalid .eqv. .true.) then
+				possible_ghosts(Wi) = ''
+			end if
+		end do
+	end subroutine BarWriting
+
+	subroutine BarFreezing()
+		integer :: Freezi, Freezj
+		logical :: Freezvalid
+		HasFreezing = .false.
+		NoFreezing = .true.
+		do Freezi = 1, size(possible_ghosts)
+			Freezvalid = .false.
+			do Freezj = 1, size(ghosts_Freezing)
+				if(possible_ghosts(Freezi) == ghosts_Freezing(Freezj)) then
+					Freezvalid = .true.
+				end if
+			end do
+			if (Freezvalid .eqv. .true.) then
+				possible_ghosts(Freezi) = ''
+			end if
+		end do
+	end subroutine BarFreezing
+
+	subroutine BarDots()
+		integer :: Dotsi, Dotsj
+		logical :: Dotsvalid
+		HasDots = .false.
+		NoDots = .true.
+		do Dotsi = 1, size(possible_ghosts)
+			Dotsvalid = .false.
+			do Dotsj = 1, size(ghosts_Dots)
+				if(possible_ghosts(Dotsi) == ghosts_Dots(Dotsj)) then
+					Dotsvalid = .true.
+				end if
+			end do
+			if (Dotsvalid .eqv. .true.) then
+				possible_ghosts(Dotsi) = ''
+			end if
+		end do
+	end subroutine BarDots
+
+	subroutine BarOrb()											!TODO: Handle Mimic
+		integer :: Orbi, Orbj
+		logical :: Orbvalid
+		HasOrb = .false.
+		NoOrb = .true.
+		do Orbi = 1, size(possible_ghosts)
+			Orbvalid = .false.
+			do Orbj = 1, size(ghosts_Orb)
+				if(possible_ghosts(Orbi) == ghosts_Orb(Orbj)) then
+					Orbvalid = .true.
+				end if
+			end do
+			if (Orbvalid .eqv. .true.) then
+				possible_ghosts(Orbi) = ''
+			end if
+		end do
+	end subroutine BarOrb
+
+	subroutine BarBox()
+		integer :: Boxi, Boxj
+		logical :: Boxvalid
+		HasBox = .false.
+		NoBox = .true.
+		do Boxi = 1, size(possible_ghosts)
+			Boxvalid = .false.
+			do Boxj = 1, size(ghosts_Box)
+				if(possible_ghosts(Boxi) == ghosts_Box(Boxj)) then
+					Boxvalid = .true.
+				end if
+			end do
+			if (Boxvalid .eqv. .true.) then
+				possible_ghosts(Boxi) = ''
+			end if
+		end do
+	end subroutine BarBox
 
 	subroutine ReinitPossibleGhostListOnChange()
 		integer :: Reiniti
@@ -390,6 +553,27 @@ contains
 		if (HasBox .eqv. .true.) then
 			call AddBox()
 		end if
+		if (NoEMF .eqv. .true.) then
+			call BarEMF()
+		end if
+		if (NoUV .eqv. .true.) then
+			call BarUV()
+		end if
+		if (NoWriting .eqv. .true.) then
+			call BarWriting()
+		end if
+		if (NoFreezing .eqv. .true.) then
+			call BarFreezing()
+		end if
+		if (NoDots .eqv. .true.) then
+			call BarDots()
+		end if
+		if (NoOrb .eqv. .true.) then
+			call BarOrb()
+		end if
+		if (NoBox .eqv. .true.) then
+			call BarBox()
+		end if !Kifolyik bazdmeg a szemem
 	end subroutine ReinitPossibleGhostListOnChange
 
 	subroutine Restart()
