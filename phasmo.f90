@@ -1,8 +1,17 @@
 program phasmo
 	implicit none
-	integer :: evidenceList(7)
-	integer :: evidences(4)
-	integer :: i
+	integer 		:: evidenceList(7)
+	integer 		:: evidences(4)
+	integer 		:: i
+	logical 		:: running
+
+!	Command kezelés
+	character(32) 	:: input
+	character(16)	:: command
+	character(16)	:: param
+	integer			:: split_pos
+	logical			:: valid_command		!Lefuthat v errorozzon
+
 
 !	Szellemek listája
 	character(len=16) :: ghosts(24)
@@ -141,17 +150,79 @@ program phasmo
 	end do
 
 !--------------------------------------------------------------Main
-	!call AddEMF()			!Debug
-	!call AddUV()			!Debug
-	call AddWriting()		!Debug
-	call AddBox()
-	call AddFreezing()
 
-	do i = 1, size(possible_ghosts)						!Kivihetjük majd subroutine-ba, ez csak a kiírás
-		if (possible_ghosts(i) .ne. '') then
-			print *, possible_ghosts(i)
+!Debug calls
+	!call AddEMF()			
+	!call AddUV()			
+	!call AddWriting()		
+	!call AddBox()
+	!call AddFreezing()
+	!call AddDots()
+	!call AddOrb()
+
+	print *, 'Program running.'
+	running = .true.
+	do while (running .eqv. .true.)
+		read(*,'(A)') input
+		valid_command = .false.
+		command = ''
+		param = ''
+		split_pos = index(trim(input), ' ')
+		if(split_pos > 0) then 							!Tehát ha van is paraméter
+			command = adjustl(trim(input(1:split_pos-1)))
+			param = adjustl(trim(input(split_pos+1:len(trim(input)))))
+			valid_command = .true.
+		else if (input == 'shutdown' .or. input == 'restart') then
+			valid_command = .true.
+		else
+			print *, 'Invalid command format.'
+		end if
+
+		if (valid_command .eqv. .true.) then
+			if (command == 'evidence') then
+				if (param == 'emf') then
+					call AddEMF()
+					print *, 'Evidence added.'
+				else if (param == 'uv') then
+					call AddUV()
+					print *, 'Evidence added.'
+				else if (param == 'writing') then
+					call AddWriting()
+					print *, 'Evidence added.'
+				else if (param == 'freezing') then
+					call AddFreezing()
+					print *, 'Evidence added.'
+				else if (param == 'dots') then
+					call AddDots()
+					print *, 'Evidence added.'
+				else if (param == 'orb') then
+					call AddOrb()
+					print *, 'Evidence added.'
+				else if (param == 'box' .or. param == 'spiritbox') then
+					call AddBox()
+					print *, 'Evidence added.'
+				else
+					print *, 'Error: Invalid evidence.'
+				end if
+			else if(command == 'list') then
+				if (param == 'ghost' .or. param == 'ghosts') then
+					call ListGhosts()
+				else
+					print *, 'Invalid list object'
+				end if
+			!--------------------------------------------------Innentől command + param helyett input
+			else if (input == 'shutdown') then
+				running = .false.
+			else if (input == 'restart') then
+				call Restart()
+			else
+				print *, 'Unknown command'
+			end if
 		end if
 	end do
+
+
+
 
 
 
@@ -162,6 +233,17 @@ contains
 			possible_ghosts(i) = ''
 		end do
 	end subroutine EmptyListForInit
+
+	subroutine ListGhosts()
+		print *, 'Possible ghosts:'
+		print *, '----------------'
+		do i = 1, size(possible_ghosts)						!Kivihetjük majd subroutine-ba, ez csak a kiírás
+			if (possible_ghosts(i) .ne. '') then
+				print *, possible_ghosts(i)
+			end if
+		end do
+		print *, '================'
+	end subroutine ListGhosts
 
 	subroutine AddEMF()
 		integer :: EMFi, EMFj
@@ -282,6 +364,53 @@ contains
 		end do
 	end subroutine AddBox
 
+	subroutine ReinitPossibleGhostListOnChange()
+		integer :: Reiniti
+		do reiniti = 1, size(ghosts)
+			possible_ghosts(reiniti) = ghosts(reiniti)
+		end do
+		if (HasEMF .eqv. .true.) then
+			call AddEMF()
+		end if
+		if (HasUV .eqv. .true.) then
+			call AddUV()
+		end if
+		if (HasWriting .eqv. .true.) then
+			call AddWriting()
+		end if
+		if (HasFreezing .eqv. .true.) then
+			call AddFreezing()
+		end if
+		if (HasDots .eqv. .true.) then
+			call AddDots()
+		end if
+		if (HasOrb .eqv. .true.) then
+			call AddOrb()
+		end if
+		if (HasBox .eqv. .true.) then
+			call AddBox()
+		end if
+	end subroutine ReinitPossibleGhostListOnChange
+
+	subroutine Restart()
+		HasEMF = .false.
+		HasUV = .false.
+		HasWriting = .false.
+		HasFreezing = .false.
+		HasDots = .false.
+		HasOrb = .false.
+		HasBox = .false.
+		NoEMF = .false.
+		NoUV = .false.
+		NoWriting = .false.
+		NoFreezing = .false.
+		NoDots = .false.
+		NoOrb = .false.
+		NoBox = .false.
+		call ReinitPossibleGhostListOnChange()
+	end subroutine Restart
+
+
 end program phasmo
 
 
@@ -289,3 +418,4 @@ end program phasmo
 ! Szóval az a terv, hogy ha valamit deletel, akkor az egész listát újra végiglépkedi. 
 ! Ehhez külön eltároljuk pl IsEMF, IsUV stb változókba az evidenceket, és ez alapján mehet az új init.
 ! Elég ocsortány megoldás, de hát ezt tudja ez a nyelv
+! TODO: Legyen vmi check, hogy ha pl disablel egy bizonyítékot (i.e. kihúz) és közben enablelve van, változzék meg az enable állapota.
